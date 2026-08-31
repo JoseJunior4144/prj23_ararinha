@@ -1,4 +1,5 @@
 import time
+import pprint
 
 import numpy as np
 from scipy.optimize import minimize
@@ -306,6 +307,12 @@ for ax in axs:
 
 plt.tight_layout()
 fig.savefig('equipe_geom_planformas.png', dpi=150)
+
+print('')
+print('='*70)
+print('DICIONARIO DA AERONAVE OTIMIZADA')
+print('='*70)
+print('inputs = ' + pprint.pformat(airplane_opt['inputs'], sort_dicts=False, width=100))
 
 plot_geometry(airplane_opt, figname='equipe_geom_3dview.png')
 
