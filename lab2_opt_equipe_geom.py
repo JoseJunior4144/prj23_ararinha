@@ -33,6 +33,8 @@ CON = [('deltaS_wlan',      '>=',  0.0),
        ('alpha_tipback',    '>=', 15.0),
        ('alpha_tailstrike', '>=', 10.0),
        ('phi_overturn',     '<=', 63.0),
+       # fundo da nacele (z_n - D_n/2) nao pode raspar no solo (z = z_lg)
+       ('ground_clearance', '>=',  0.5),
        ('tank_excess',      '>=',  0.0),
        # a Tab. 1-1 do Anexo 14 define a categoria E como "up to but not
        # including" 65 m e 14 m, entao os limites sao estritos
@@ -74,9 +76,11 @@ def run_analysis(x):
     i = airplane['inputs']
 
     # corda e bordo de fuga da asa na estacao lateral do trem principal
+    # (LE interpolado entre raiz e ponta: xt_w ja carrega o termo de 1/4 de
+    # corda, pois sweep_w e' medido a 1/4 de corda em geometry.py)
     eta = i['y_mlg']/(g['b_w']/2)
     c_mlg = g['cr_w'] - (g['cr_w'] - g['ct_w'])*eta
-    te_mlg = i['xr_w'] + i['y_mlg']*np.tan(i['sweep_w']) + c_mlg
+    te_mlg = i['xr_w'] + (g['xt_w'] - i['xr_w'])*eta + c_mlg
 
     out = {'W0'               : tm['W0']/gravity,
            'Wf'               : tm['W_fuel']/gravity,
@@ -88,6 +92,7 @@ def run_analysis(x):
            'alpha_tipback'    : lg['alpha_tipback']*rad2deg,
            'alpha_tailstrike' : lg['alpha_tailstrike']*rad2deg,
            'phi_overturn'     : lg['phi_overturn']*rad2deg,
+           'ground_clearance' : lg['ground_clearance'],
            'tank_excess'      : b['tank_excess'],
            'b_w'              : g['b_w'],
            'mlg_track'        : lg['mlg_track'],
