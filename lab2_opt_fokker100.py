@@ -136,27 +136,42 @@ print('='*58)
 
 Xhist = np.array(Xlist)
 
-fig = plt.figure(figsize=(7,7))
+# paleta e tintas (mesma convencao dos demais scripts do lab)
+PAL = ['#2a78d6', '#eb6834']
+INK2 = '#52514e'
+MUTED = '#c3c2b7'
+GRID = '#e1e0d9'
 
-ax1 = plt.subplot(311)
-l1 = ax1.plot(Xhist[:,0],'o-',color='C0',markersize=3,label=r'$AR_w$')
-ax1.set_ylabel(r'$AR_w$',fontsize=14,color='C0')
-ax1.tick_params(axis='y',labelcolor='C0')
-ax2 = ax1.twinx()
-l2 = ax2.plot(Xhist[:,1],'o-',color='C1',markersize=3,label=r'$S_w$ [m$^2$]')
-ax2.set_ylabel(r'$S_w$ [m$^2$]',fontsize=14,color='C1')
-ax2.tick_params(axis='y',labelcolor='C1')
-ax1.legend(l1+l2,[l.get_label() for l in l1+l2],loc='center right')
+def style_axes(ax):
+    ax.grid(color=GRID, linewidth=0.7)
+    ax.set_axisbelow(True)
+    for side in ('top', 'right'):
+        ax.spines[side].set_visible(False)
+    for side in ('left', 'bottom'):
+        ax.spines[side].set_color(MUTED)
+    ax.tick_params(colors=INK2, labelsize=9)
 
-plt.subplot(312)
-plt.plot(flist,'o-')
-plt.ylabel('MTOW [kgf]',fontsize=14)
-plt.subplot(313)
-plt.plot(g1list,'o-',label=r'$g_1 = b_w/30 - 1$')
-plt.plot([0,len(g1list)-1],[0,0],'gray',linewidth=0.5)
-plt.ylabel('g',fontsize=20)
-plt.xlabel('evaluations',fontsize=20)
-plt.legend()
+fig, axs = plt.subplots(3, 1, figsize=(7,7), sharex=True)
+
+# um eixo so: as duas DVs normalizadas pelo valor inicial (eixo duplo
+# induz correlacao falsa entre escalas arbitrarias)
+axs[0].plot(Xhist[:,0]/X0[0], '-', linewidth=1.6, color=PAL[0], label=r'$AR_w$')
+axs[0].plot(Xhist[:,1]/X0[1], '-', linewidth=1.6, color=PAL[1], label=r'$S_w$')
+axs[0].set_ylabel('DV / valor inicial', fontsize=12)
+axs[0].legend(fontsize=9, frameon=False, loc='center right')
+
+axs[1].plot(flist, '-', linewidth=1.8, color=PAL[0])
+axs[1].set_ylabel('MTOW [kgf]', fontsize=12)
+
+axs[2].plot(g1list, '-', linewidth=1.6, color=PAL[0], label=r'$g_1 = b_w/30 - 1$')
+axs[2].axhline(0, color=INK2, linewidth=0.8)
+axs[2].set_ylabel('$g$', fontsize=12)
+axs[2].set_xlabel('avaliações', fontsize=12)
+axs[2].legend(fontsize=9, frameon=False)
+
+for ax in axs:
+    style_axes(ax)
+
 plt.tight_layout()
 fig.savefig('fokker100_historico.png', dpi=150)
 
@@ -200,7 +215,7 @@ if PLOT_CONTOUR:
                colors='r', linewidths=2.5, zorder=3)
 
     xk_arr = np.array(xk)*Xref
-    ax.plot(xk_arr[:,0], xk_arr[:,1], '--o', color='r', markersize=4,
+    ax.plot(xk_arr[:,0], xk_arr[:,1], '--o', color='#e34948', markersize=4,
             markeredgecolor='w', markeredgewidth=0.5, zorder=4)
     ax.plot(X0[0], X0[1], 'o', color='lime', markersize=10,
             markeredgecolor='k', label='Ponto de partida', zorder=5)

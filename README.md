@@ -1,33 +1,59 @@
-# Lab 02 - Otimização 1 (PRJ-23)
+# Lab 02 - Otimização (PRJ-23) — Equipe Ararinha
 
 Instituto Tecnológico de Aeronáutica — Programa de Especialização em Engenharia Aeronáutica.
 Laboratório de otimização aplicada ao projeto conceitual de aeronaves.
 
+## Como rodar
+
+```
+pip install -r requirements.txt
+python lab2_opt_fokker100.py       # Secao 2 do roteiro  (~1,5 min, inclui contorno do espaco de projeto)
+python lab2_opt_equipe_geom.py     # Secao 3 do roteiro  (~5 s)
+python lab2_opt_equipe_moga.py     # Secao 4 do roteiro  (~6 min, NSGA-II com 16.000 analises)
+```
+
+Cada script imprime os resultados no terminal e salva as figuras `*.png`
+no diretório atual. Os scripts são determinísticos (semente fixa no NSGA-II),
+então re-rodar reproduz os números do relatório.
+
 ## Estrutura
 
-### Exemplos de aula
-- `01_uncon_opt_class.py` — otimização irrestrita
-- `02_con_opt_class.py` — otimização com restrições
-- `03_multiobj_class.py` — otimização multi-objetivo (NSGA-II / pymoo)
-- `plot_rosen.py` — visualização da função de Rosenbrock
-
-### Exercícios
-- `lab2_opt_fokker100.py` — otimização do Fokker 100
-- `lab2_opt_equipe.py` — otimização da aeronave da equipe (etapa 1)
-- `lab2_opt_equipe_geom.py` — otimização geométrica da aeronave da equipe (etapa 2)
-- `analyze.py`, `auxmod.py` — funções auxiliares
+### Exercícios do roteiro
+- `lab2_opt_fokker100.py` — **Seção 2**: aeronave default (`fokker100`), min MTOW com
+  `AR_w` e `S_w`, restrição `b_w ≤ 30 m`, SLSQP. Resultado: −2,76 % (ótimo interior).
+- `lab2_opt_equipe_geom.py` — **Seção 3**: aeronave da equipe (PRJ-22), min W0 com
+  8 DVs (asa + trem de pouso) e 16 restrições normalizadas, SLSQP.
+  Resultado: **W0 = 290.117 kgf (−5,42 %)**, 6 restrições ativas.
+- `lab2_opt_equipe_moga.py` — **Seção 4**: min {W0, Wf} com NSGA-II (pymoo),
+  pop. 80 × 200 gerações, população semeada com os ótimos SLSQP (âncoras de
+  convergência). Salva a frente em `equipe_moga_frente.csv`.
+- `lab2_opt_equipe.py` — versão intermediária da Seção 3 (6 DVs, sem as
+  restrições de encaixe do trem), mantida como registro da progressão.
 
 ### Ferramenta de projeto
-- `designTool/` — módulo de análise conceitual de aeronaves (aerodinâmica, peso, propulsão, desempenho, estabilidade)
+- `designTool/` — módulo de análise conceitual (geometria, aerodinâmica, pesos,
+  propulsão, desempenho, balanceamento, trem de pouso). Chamar via `analyze()`.
 
-### Resultados
-Figuras `*.png` geradas pelos scripts (históricos de convergência, espaço de projeto, planformas, vista 3D).
+### Exemplos de aula
+- `01_uncon_opt_class.py`, `02_con_opt_class.py`, `03_multiobj_class.py`,
+  `plot_rosen.py`, `analyze.py`, `auxmod.py`
+
+### Resultados e relatório
+- `Resultados/` — figuras geradas + `lab02_respostas_resumo.md` com as respostas
+  do roteiro.
+- `Relatorio/` — relatório em LaTeX (`relatorio_lab02.tex`) e PDF compilado.
+
+## Notas de modelagem
+
+Duas correções documentadas no apêndice do relatório:
+1. O bordo de fuga usado na restrição `mlg_fit` interpola o bordo de ataque
+   entre a raiz e o `xt_w` do designTool, pois `sweep_w` é medido a 1/4 de
+   corda (`geometry.py`) — a forma anterior subestimava o TE em ~0,45 m e
+   custava ~2,9 t de MTOW com a restrição ativa.
+2. Restrição `ground_clearance ≥ 0,5 m` adicionada: com `z_lg` como DV, o
+   bound superior permitiria a nacele abaixo do solo.
 
 ## Dependências
 
-```
-numpy
-scipy
-matplotlib
-pymoo>=0.6.0
-```
+Ver `requirements.txt` (numpy, scipy, matplotlib, pymoo). Testado com
+Python 3.12, scipy 1.16, pymoo 0.6.

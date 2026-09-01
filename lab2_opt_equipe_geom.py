@@ -237,23 +237,65 @@ analyze(airplane_ref)
 Xhist = np.array(Xlist)
 ghist = np.array(glist)
 
+# paleta categorica validada para daltonismo (ordem fixa) + tintas de apoio
+PAL = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100',
+       '#e87ba4', '#008300', '#4a3aa7', '#e34948']
+INK2 = '#52514e'
+MUTED = '#c3c2b7'
+GRID = '#e1e0d9'
+
+def style_axes(ax):
+    ax.grid(color=GRID, linewidth=0.7)
+    ax.set_axisbelow(True)
+    for side in ('top', 'right'):
+        ax.spines[side].set_visible(False)
+    for side in ('left', 'bottom'):
+        ax.spines[side].set_color(MUTED)
+    ax.tick_params(colors=INK2, labelsize=9)
+
 fig, axs = plt.subplots(3, 1, figsize=(9,10), sharex=True)
 
-for k, name in enumerate(dv_names):
-    axs[0].plot(Xhist[:,k]/Xref[k], 'o-', markersize=3, label=name)
-axs[0].set_ylabel('DV / valor inicial', fontsize=12)
-axs[0].legend(fontsize=9, ncol=4)
+n_ev = len(flist)
 
-axs[1].plot(flist, 'o-', markersize=3, color='k')
+# DVs: rotulos diretos so nos maiores movimentos (o resto fica na legenda)
+destaque_dv = ('y_mlg', 'AR_w', 'tcr_w', 'S_w')
+for k, name in enumerate(dv_names):
+    axs[0].plot(Xhist[:,k]/Xref[k], '-', linewidth=1.6, color=PAL[k], label=name)
+    if name in destaque_dv:
+        axs[0].annotate(name, (n_ev-1, Xhist[-1,k]/Xref[k]),
+                        xytext=(5, 0), textcoords='offset points',
+                        fontsize=8, color=INK2, va='center')
+axs[0].set_ylabel('DV / valor inicial', fontsize=12)
+axs[0].legend(fontsize=8, ncol=4, frameon=False)
+axs[0].set_xlim(-2, n_ev*1.09)
+
+axs[1].plot(flist, '-', linewidth=1.8, color=PAL[0])
+axs[1].annotate('%.0f kgf\n(%.2f%%)'%(flist[-1], 100*(flist[-1]-W0_ref)/W0_ref),
+                (n_ev-1, flist[-1]), xytext=(5, 0), textcoords='offset points',
+                fontsize=8, color=INK2, va='center')
 axs[1].set_ylabel('$W_0$ [kgf]', fontsize=13)
 
+# restricoes: 16 series estoura o limite de cores com significado, entao
+# so as ativas no otimo ganham cor; as demais viram contexto em cinza
+ativas_idx = [k for k in range(len(CON)) if abs(g_opt[k]) < tol_ativo]
+ic = 0
+tem_label_inativa = False
 for k, name in enumerate(con_names):
-    axs[2].plot(ghist[:,k], 'o-', markersize=2.5, linewidth=1, label=name)
-axs[2].axhline(0, color='gray', linewidth=0.8)
+    if k in ativas_idx:
+        axs[2].plot(ghist[:,k], '-', linewidth=1.6, color=PAL[ic], label=name)
+        ic += 1
+    else:
+        axs[2].plot(ghist[:,k], '-', linewidth=0.9, color=MUTED,
+                    label=None if tem_label_inativa else 'inativas')
+        tem_label_inativa = True
+axs[2].axhline(0, color=INK2, linewidth=0.8)
 axs[2].set_ylabel('$g$ normalizada', fontsize=13)
 axs[2].set_xlabel('avaliações', fontsize=13)
 axs[2].set_ylim(-0.2, 2.0)
-axs[2].legend(fontsize=7, ncol=4, loc='upper right')
+axs[2].legend(fontsize=8, ncol=4, frameon=False, loc='upper right')
+
+for ax in axs:
+    style_axes(ax)
 
 plt.tight_layout()
 fig.savefig('equipe_geom_historico.png', dpi=150)
@@ -294,21 +336,21 @@ def sideview(ax, ap, color, label):
 
 fig, axs = plt.subplots(2, 1, figsize=(11,9))
 
-planform(axs[0], airplane_ref, 'tab:gray', 'baseline')
-planform(axs[0], airplane_opt, 'tab:red', 'otimizado')
+planform(axs[0], airplane_ref, '#898781', 'baseline')
+planform(axs[0], airplane_opt, '#e34948', 'otimizado')
 axs[0].set_title('Planta', fontsize=13)
 axs[0].set_ylabel('y [m]', fontsize=12)
 axs[0].legend()
 
-sideview(axs[1], airplane_ref, 'tab:gray', 'baseline')
-sideview(axs[1], airplane_opt, 'tab:red', 'otimizado')
+sideview(axs[1], airplane_ref, '#898781', 'baseline')
+sideview(axs[1], airplane_opt, '#e34948', 'otimizado')
 axs[1].set_title('Vista lateral', fontsize=13)
 axs[1].set_xlabel('x [m]', fontsize=12)
 axs[1].set_ylabel('z [m]', fontsize=12)
 
 for ax in axs:
     ax.set_aspect('equal')
-    ax.grid(alpha=0.3)
+    style_axes(ax)
 
 plt.tight_layout()
 fig.savefig('equipe_geom_planformas.png', dpi=150)

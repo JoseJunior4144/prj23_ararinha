@@ -15,3 +15,15 @@ env/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# LaTeX (subprodutos de compilacao)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Material local (nao versionado)
+Aulas/
+Histórico de Versões/
+*.zip
