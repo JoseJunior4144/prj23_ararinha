@@ -117,19 +117,23 @@ devolvidas como indivíduos fortemente inviáveis.
 ### 1–2. Frente de Pareto e parâmetros do algoritmo
 
 - **Indivíduos por geração (pop_size): 80** — **gerações (n_gen): 200** —
-  16.000 execuções do `analyze`, ~368 s, seed 1.
-- População inicial: LHS + 3 sementes (baseline e os dois ótimos SLSQP).
-- **36 pontos** na frente final (figura `equipe_moga_pareto.png`).
+  16.000 execuções do `analyze`, ~63 s.
+- População inicial: LHS semeado manualmente (o LHS do pymoo não usa o RNG
+  global do numpy) + baseline + 2 sementes estritamente viáveis (SLSQP com
+  restrições apertadas em 0,5 %). Script reprodutível: duas execuções
+  independentes produzem frentes bit a bit idênticas.
+- **80 pontos** na frente final (figura `equipe_moga_pareto.png`; dados em
+  `equipe_moga_frente.csv`).
 
 ### 4. Três aeronaves de regiões distintas da frente
 
 | aeronave | W0 [kgf] | Wf [kgf] | S_w [m²] | tcr_w | AR_w |
 |---|---|---|---|---|---|
-| A (min W0) | 291.327,7 | 110.938,4 | 364,2 | 0,202 | 9,66 |
-| B (joelho) | 291.750,4 | 110.033,7 | 369,9 | 0,193 | 9,72 |
-| C (min Wf) | 292.499,8 | 109.961,1 | 374,8 | 0,189 | 9,66 |
+| A (min W0) | 290.758,2 | 110.994,1 | 358,1 | 0,205 | 9,80 |
+| B (joelho) | 291.291,1 | 109.891,3 | 368,8 | 0,196 | 9,81 |
+| C (min Wf) | 292.468,2 | 109.385,4 | 376,1 | 0,186 | 9,79 |
 
-De A para C troca-se ~1,2 t de MTOW por ~1 t de combustível: asa maior e
+De A para C troca-se ~1,7 t de MTOW por ~1,6 t de combustível: asa maior e
 mais fina voa mais eficiente (menos arrasto induzido/de onda por área),
 mas pesa mais. Em planta as três são quase idênticas
 (`equipe_moga_planformas.png`) — o trade-off está em área e espessura,
@@ -144,13 +148,13 @@ mesmo problema: min W0 (SLSQP) = 290.117,1 kgf e min Wf (SLSQP) =
 293.379,9 kgf — **+1,12 % acima da âncora**, com a frente inteira dominada
 pelos dois pontos do SLSQP: evidência objetiva de não-convergência. A
 rodada final (pop 80, 200 gerações, semeada) fecha os extremos em
-**+0,42 %** (min W0 = 291.327,7 kgf) e **+0,77 %** (min Wf =
-109.961,1 kgf) das âncoras — o resíduo é esperado do NSGA-II em ótimos
+**+0,22 %** (min W0 = 290.758,2 kgf) e **+0,25 %** (min Wf =
+109.385,4 kgf) das âncoras — o resíduo é esperado do NSGA-II em ótimos
 "de canto" com várias restrições ativas, que o gradiente resolve com
 precisão de máquina.
 
 A frente é estreita porque W0 e Wf são apenas parcialmente conflitantes:
-entre os extremos trocam-se ~1,9 t de MTOW por ~1,9 t de combustível —
-a aeronave de min Wf tem asa maior (S_w ≈ 374 m²) e raiz mais fina
-(tcr ≈ 0,187), mais eficiente em cruzeiro porém estruturalmente mais
+entre os extremos trocam-se ~1,7 t de MTOW por ~1,6 t de combustível —
+a aeronave de min Wf tem asa maior (S_w ≈ 376 m²) e raiz mais fina
+(tcr ≈ 0,186), mais eficiente em cruzeiro porém estruturalmente mais
 pesada.

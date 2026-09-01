@@ -9,7 +9,7 @@ Laboratório de otimização aplicada ao projeto conceitual de aeronaves.
 pip install -r requirements.txt
 python lab2_opt_fokker100.py       # Secao 2 do roteiro  (~1,5 min, inclui contorno do espaco de projeto)
 python lab2_opt_equipe_geom.py     # Secao 3 do roteiro  (~5 s)
-python lab2_opt_equipe_moga.py     # Secao 4 do roteiro  (~6 min, NSGA-II com 16.000 analises)
+python lab2_opt_equipe_moga.py     # Secao 4 do roteiro  (~1-2 min, NSGA-II com 16.000 analises)
 ```
 
 Cada script imprime os resultados no terminal e salva as figuras `*.png`

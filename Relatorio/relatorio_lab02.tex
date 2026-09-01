@@ -266,9 +266,14 @@ devolvidas como indivíduos fortemente inviáveis.
 \subsection{Gerações e indivíduos (pergunta 2)}
 
 \textbf{80 indivíduos por geração} e \textbf{200 gerações}
-(16.000 execuções do \texttt{analyze}, $\approx 368$~s, semente 1),
-com população inicial por hipercubo latino semeada com a baseline e os dois
-ótimos mono-objetivo. A frente final tem 36 pontos.
+(16.000 execuções do \texttt{analyze}, $\approx 63$~s). A população inicial
+é um hipercubo latino semeado com a baseline e com dois pontos
+estritamente viáveis obtidos por SLSQP com as restrições apertadas em
+$0{,}5\,\%$ (os ótimos exatos ficam sobre restrições ativas e seriam
+descartados por violação numérica na reavaliação). Todas as fontes de
+aleatoriedade têm semente fixa, e o script é reprodutível: duas execuções
+independentes produzem frentes bit a bit idênticas. A frente final tem
+80 pontos.
 
 \subsection{Verificação de convergência com a Seção 2 (pergunta 3)}
 
@@ -279,9 +284,10 @@ uma rodada \emph{sem} sementes (pop.\ 60, 120 gerações) estagnou com o
 extremo de mínimo $W_0$ em $293.379{,}9$~kgf --- $+1{,}12\,\%$ acima da
 âncora, com a frente inteira dominada pelos dois pontos do SLSQP,
 evidenciando não convergência. A rodada final fecha os extremos em
-$+0{,}42\,\%$ ($W_0$) e $+0{,}77\,\%$ ($W_f$) das âncoras; o resíduo é
-esperado do NSGA-II em ótimos ``de canto'' com várias restrições ativas,
-que o método de gradiente resolve com precisão muito maior.
+$+0{,}22\,\%$ ($W_0 = 290.758{,}2$~kgf) e $+0{,}25\,\%$
+($W_f = 109.385{,}4$~kgf) das âncoras; o resíduo é esperado do NSGA-II em
+ótimos ``de canto'' com várias restrições ativas, que o método de gradiente
+resolve com precisão muito maior.
 
 \subsection{Três aeronaves da frente (pergunta 4)}
 
@@ -292,9 +298,9 @@ que o método de gradiente resolve com precisão muito maior.
 \toprule
 aeronave & $W_0$ [kgf] & $W_f$ [kgf] & $S_w$ [m$^2$] & $(t/c)_{r,w}$ & $AR_w$ \\
 \midrule
-A ($\min W_0$) & 291.327{,}7 & 110.938{,}4 & 364{,}2 & 0{,}202 & 9{,}66 \\
-B (joelho)     & 291.750{,}4 & 110.033{,}7 & 369{,}9 & 0{,}193 & 9{,}72 \\
-C ($\min W_f$) & 292.499{,}8 & 109.961{,}1 & 374{,}8 & 0{,}189 & 9{,}66 \\
+A ($\min W_0$) & 290.758{,}2 & 110.994{,}1 & 358{,}1 & 0{,}205 & 9{,}80 \\
+B (joelho)     & 291.291{,}1 & 109.891{,}3 & 368{,}8 & 0{,}196 & 9{,}81 \\
+C ($\min W_f$) & 292.468{,}2 & 109.385{,}4 & 376{,}1 & 0{,}186 & 9{,}79 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -306,7 +312,7 @@ C ($\min W_f$) & 292.499{,}8 & 109.961{,}1 & 374{,}8 & 0{,}189 & 9{,}66 \\
 \label{fig:moga_planformas}
 \end{figure}
 
-De A para C trocam-se $\approx 1{,}2$~t de MTOW por $\approx 1$~t de
+De A para C trocam-se $\approx 1{,}7$~t de MTOW por $\approx 1{,}6$~t de
 combustível: a asa maior e mais fina voa mais eficiente (menos arrasto
 induzido e de onda por unidade de área), ao custo de estrutura mais pesada.
 Como $W_0$ e $W_f$ são apenas parcialmente conflitantes, a frente é estreita

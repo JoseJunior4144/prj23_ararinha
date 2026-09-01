@@ -171,13 +171,34 @@ N_GEN = 200
 
 problem = AirplaneProblem()
 
-# populacao inicial: LHS + baseline + otimos SLSQP como sementes, para
-# ancorar os extremos da frente e acelerar a convergencia
-from pymoo.operators.sampling.lhs import LHS
-X0_pop = LHS()(problem, POP_SIZE).get('X')
-X0_pop[0] = np.ones(len(DV))
-X0_pop[1] = anchor_W0['x']
-X0_pop[2] = anchor_Wf['x']
+# sementes estritamente viaveis: otimos SLSQP do mesmo problema com as
+# restricoes apertadas em `margem` -- ficam no interior do conjunto viavel,
+# entao sobrevivem a reavaliacao do NSGA-II (as ancoras exatas ficam em cima
+# de restricoes ativas e sao descartadas por violacao de arredondamento)
+def slsqp_interior(objetivo, margem):
+    from scipy.optimize import minimize as sp_minimize
+    ref = W0_ref if objetivo == 'W0' else Wf_ref
+    r = sp_minimize(lambda x: run_analysis(x)[objetivo]/ref,
+                    np.ones(len(DV)),
+                    constraints=[{'type': 'ineq',
+                                  'fun': lambda x: constraints_geq0(run_analysis(x)) - margem}],
+                    bounds=bounds_norm, method='slsqp',
+                    options={'maxiter': 200, 'ftol': 1e-8})
+    return r.x
+
+seed_W0 = slsqp_interior('W0', 0.005)
+seed_Wf = slsqp_interior('Wf', 0.005)
+
+# populacao inicial: LHS semeado manualmente (o LHS do pymoo nao usa o RNG
+# global do numpy e quebraria a reprodutibilidade) + baseline + sementes
+rng = np.random.default_rng(1)
+nv = len(DV)
+u = (np.stack([rng.permutation(POP_SIZE) for _ in range(nv)], axis=1)
+     + rng.random((POP_SIZE, nv)))/POP_SIZE
+X0_pop = bounds_norm[:,0] + u*(bounds_norm[:,1] - bounds_norm[:,0])
+X0_pop[0] = np.ones(nv)
+X0_pop[1] = seed_W0
+X0_pop[2] = seed_Wf
 
 algorithm = NSGA2(pop_size=POP_SIZE, sampling=X0_pop, eliminate_duplicates=True)
 
@@ -221,7 +242,28 @@ idxB = int(np.argmin(f1n**2 + f2n**2))
 
 sel_idx = [idxA, idxB, idxC]
 sel_names = ['A (min W0)', 'B (joelho)', 'C (min Wf)']
-sel_colors = ['tab:red', 'tab:green', 'tab:blue']
+
+# paleta categorica validada para daltonismo (3 primeiros slots valem para
+# scatter) + tintas de apoio, mesma convencao do lab2_opt_equipe_geom
+PAL = ['#2a78d6', '#eb6834', '#1baf7a']
+INK = '#0b0b0b'
+INK2 = '#52514e'
+MUTED = '#c3c2b7'
+GRID = '#e1e0d9'
+
+def style_axes(ax):
+    ax.grid(color=GRID, linewidth=0.7)
+    ax.set_axisbelow(True)
+    for side in ('top', 'right'):
+        ax.spines[side].set_visible(False)
+    for side in ('left', 'bottom'):
+        ax.spines[side].set_color(MUTED)
+    ax.tick_params(colors=INK2, labelsize=9)
+
+# frente salva em CSV para replotar sem precisar re-rodar o NSGA-II
+np.savetxt('equipe_moga_frente.csv',
+           np.column_stack([W0_front, Wf_front, X*Xref]),
+           header='W0_kgf Wf_kgf ' + ' '.join(dv_names), fmt='%.6g')
 
 print('')
 print('%-12s %10s %10s'%('aeronave', 'W0 [kgf]', 'Wf [kgf]'))
@@ -234,23 +276,51 @@ for j, dvn in enumerate(dv_names):
     print('%-10s'%dvn + ''.join('%12.4f'%(X[k,j]*Xref[j]) for k in sel_idx))
 
 ### FRENTE DE PARETO
+# eixo principal ampliado na regiao da frente (a baseline, 14 t acima,
+# esmagaria os pontos num canto); contexto completo fica no inset
 
-fig = plt.figure(figsize=(8,6))
-plt.plot(W0_front/1000, Wf_front/1000, 'o', color='gray', markersize=4,
-         label='frente de Pareto (NSGA-II)')
-plt.plot(out_ref['W0']/1000, out_ref['Wf']/1000, 's', color='k', markersize=9,
-         label='baseline (PRJ-22)')
-plt.plot(anchor_W0['W0']/1000, anchor_W0['Wf']/1000, '*', color='gold', markersize=17,
-         markeredgecolor='k', label='SLSQP min $W_0$ (Secao 3)')
-plt.plot(anchor_Wf['W0']/1000, anchor_Wf['Wf']/1000, '*', color='tab:purple', markersize=17,
-         markeredgecolor='k', label='SLSQP min $W_f$')
-for name, k, c in zip(sel_names, sel_idx, sel_colors):
-    plt.plot(W0_front[k]/1000, Wf_front[k]/1000, 'o', color=c, markersize=9,
-             markeredgecolor='k', label=name)
-plt.xlabel('$W_0$ [t]', fontsize=13)
-plt.ylabel('$W_f$ [t]', fontsize=13)
-plt.grid(alpha=0.3)
-plt.legend(fontsize=10)
+fig, ax = plt.subplots(figsize=(8.5, 6))
+
+ax.plot(W0_front/1000, Wf_front/1000, '-', color=PAL[0], linewidth=1.1, alpha=0.55)
+ax.plot(W0_front/1000, Wf_front/1000, 'o', color=PAL[0], markersize=5,
+        markeredgecolor='white', markeredgewidth=1.0,
+        label='frente de Pareto (NSGA-II)')
+
+for anc, lab, dxy in ((anchor_W0, 'SLSQP min $W_0$', (-10, -16)),
+                      (anchor_Wf, 'SLSQP min $W_f$', (10, -4))):
+    ax.plot(anc['W0']/1000, anc['Wf']/1000, '*', color=INK, markersize=15,
+            markeredgecolor='white', markeredgewidth=0.8,
+            label='ótimos SLSQP (âncoras)' if anc is anchor_W0 else None)
+    ax.annotate(lab, (anc['W0']/1000, anc['Wf']/1000), xytext=dxy,
+                textcoords='offset points', fontsize=9, color=INK2)
+
+sel_marks = ['o', 's', '^']
+for name, k, m in zip(sel_names, sel_idx, sel_marks):
+    ax.plot(W0_front[k]/1000, Wf_front[k]/1000, m, color=PAL[1], markersize=10,
+            markeredgecolor='white', markeredgewidth=1.2, zorder=5,
+            label='selecionadas (A, B, C)' if m == 'o' else None)
+    ax.annotate(name.split()[0], (W0_front[k]/1000, Wf_front[k]/1000),
+                xytext=(8, 7), textcoords='offset points',
+                fontsize=10, color=INK, fontweight='bold')
+
+ax.set_xlabel('$W_0$ [t]', fontsize=13)
+ax.set_ylabel('$W_f$ [t]', fontsize=13)
+ax.margins(x=0.10, y=0.12)
+ax.legend(fontsize=9, frameon=False, loc='lower left')
+style_axes(ax)
+
+axi = ax.inset_axes([0.58, 0.58, 0.39, 0.38])
+axi.plot(W0_front/1000, Wf_front/1000, 'o', color=PAL[0], markersize=2.5)
+axi.plot(out_ref['W0']/1000, out_ref['Wf']/1000, 's', color=INK, markersize=6)
+axi.annotate('baseline PRJ-22', (out_ref['W0']/1000, out_ref['Wf']/1000),
+             xytext=(-8, -14), textcoords='offset points',
+             fontsize=8, color=INK2, ha='right')
+axi.annotate('frente', (W0_front[0]/1000, Wf_front[0]/1000),
+             xytext=(6, 8), textcoords='offset points', fontsize=8, color=INK2)
+axi.set_title('contexto completo', fontsize=8, color=INK2)
+axi.tick_params(labelsize=7)
+style_axes(axi)
+
 plt.tight_layout()
 fig.savefig('equipe_moga_pareto.png', dpi=150)
 
@@ -272,21 +342,52 @@ def planform(ax, ap, color, label):
     ax.plot([i['x_mlg']]*2, [-i['y_mlg'], i['y_mlg']], 'o', color=color, ms=5)
     ax.plot([i['x_nlg']], [0], 'o', color=color, ms=5)
 
-fig, ax = plt.subplots(figsize=(11,7))
+# as tres planformas sao quase identicas -- o trade-off real esta em S_w e
+# t/c, entao um painel lateral mostra essas diferencas em escala legivel
+fig = plt.figure(figsize=(12, 6.5))
+gs = fig.add_gridspec(2, 2, width_ratios=[2.4, 1], hspace=0.4, wspace=0.15)
+axp = fig.add_subplot(gs[:, 0])
+axb1 = fig.add_subplot(gs[0, 1])
+axb2 = fig.add_subplot(gs[1, 1])
 
-for name, k, c in zip(sel_names, sel_idx, sel_colors):
+for name, k, c in zip(sel_names, sel_idx, PAL):
     airplane = standard_airplane('my_airplane')
     for j, dvn in enumerate(dv_names):
         airplane['inputs'][dvn] = X[k,j]*Xref[j]
     analyze(airplane)
-    planform(ax, airplane, c, name)
+    planform(axp, airplane, c, name)
 
-ax.set_title('Planformas das aeronaves da frente de Pareto', fontsize=13)
-ax.set_xlabel('x [m]', fontsize=12)
-ax.set_ylabel('y [m]', fontsize=12)
-ax.set_aspect('equal')
-ax.grid(alpha=0.3)
-ax.legend()
+axp.set_title('Planformas das aeronaves da frente de Pareto', fontsize=13)
+axp.set_xlabel('x [m]', fontsize=12)
+axp.set_ylabel('y [m]', fontsize=12)
+axp.set_aspect('equal')
+axp.legend(fontsize=9, frameon=False)
+style_axes(axp)
+
+letras = ['A', 'B', 'C']
+jS = dv_names.index('S_w')
+jT = dv_names.index('tcr_w')
+Svals = [X[k, jS]*Xref[jS] for k in sel_idx]
+Tvals = [X[k, jT]*Xref[jT] for k in sel_idx]
+
+for axb, vals, titulo, fmt in ((axb1, Svals, '$S_w$ [m$^2$]', '%.0f'),
+                               (axb2, Tvals, '$(t/c)_{r,w}$', '%.3f')):
+    ypos = np.arange(len(letras))[::-1]
+    for yi, v, c in zip(ypos, vals, PAL):
+        axb.plot(v, yi, 'o', color=c, markersize=9,
+                 markeredgecolor='white', markeredgewidth=1.0)
+        axb.annotate(fmt % v, (v, yi), xytext=(0, 9),
+                     textcoords='offset points', ha='center',
+                     fontsize=9, color=INK2)
+    axb.set_yticks(ypos)
+    axb.set_yticklabels(letras, fontsize=10)
+    vmin, vmax = min(vals), max(vals)
+    pad = 0.35*(vmax - vmin) + 1e-9
+    axb.set_xlim(vmin - pad, vmax + pad)
+    axb.set_ylim(-0.6, 2.9)
+    axb.set_title(titulo, fontsize=11, color=INK)
+    style_axes(axb)
+
 plt.tight_layout()
 fig.savefig('equipe_moga_planformas.png', dpi=150)
 
