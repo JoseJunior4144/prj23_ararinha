@@ -38,10 +38,9 @@ então re-rodar reproduz os números do relatório.
 - `01_uncon_opt_class.py`, `02_con_opt_class.py`, `03_multiobj_class.py`,
   `plot_rosen.py`, `analyze.py`, `auxmod.py`
 
-### Resultados e relatório
+### Resultados
 - `Resultados/` — figuras geradas + `lab02_respostas_resumo.md` com as respostas
-  do roteiro.
-- `Relatorio/` — relatório em LaTeX (`relatorio_lab02.tex`) e PDF compilado.
+  do roteiro. O relatório final é mantido no Overleaf da equipe.
 
 ## Notas de modelagem
 
