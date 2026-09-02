@@ -3,7 +3,10 @@
 Gerado a partir das execuções dos scripts do repositório (branch `durin`,
 com a correção da restrição `mlg_fit` e a nova restrição `ground_clearance`).
 
-## Seção 2 — Aeronave default (`lab2_opt_fokker100.py`)
+As figuras estão organizadas por tópico: `1_monoobj_fokker100/`,
+`2_monoobj_equipe/` e `3_multiobj/`.
+
+## Tópico 1 — Mono-objetivo: aeronave default (`lab2_opt_fokker100.py`)
 
 Problema: min MTOW, DVs `AR_w` ∈ [7, 12] e `S_w` ∈ [80, 120] m², restrição
 `b_w ≤ 30 m`, SLSQP com diferenças finitas, partida em (7,5; 90 m²).
@@ -20,7 +23,25 @@ Problema: min MTOW, DVs `AR_w` ∈ [7, 12] e `S_w` ∈ [80, 120] m², restriçã
   e ‖∇f‖ ≈ 7·10⁻⁶ no ótimo. A condição de otimalidade é ∇f = 0, sem
   contribuição de multiplicadores.
 
-## Seção 3 — Aeronave da equipe (`lab2_opt_equipe_geom.py`)
+## Tópico 2 — Mono-objetivo: aeronave da equipe (`lab2_opt_equipe_geom.py`)
+
+### Storytelling: da baseline ao ótimo (`equipe_etapas_w0.png`, `equipe_doe_sensibilidade.png`)
+
+- **Etapas** (`lab2_doe_equipe.py`): baseline PRJ-22 (306,7 t — já inviável:
+  trem principal atrás do bordo de fuga, `mlg_fit` = 1,013) → otimização com
+  6 DVs (288,3 t — ótimo *aparente*, mas o otimizador empurrou o trem ainda
+  mais para trás, `mlg_fit` = 1,106) → formulação final com 8 DVs e 16
+  restrições (290,1 t, viável). **As restrições de realismo custam +1,9 t** —
+  é o preço de um avião que para em pé.
+- **Cortes 1-a-1 no ótimo** (DOE, seguindo o passo-a-passo das aulas):
+  `AR_w`, `S_w`, `sweep_w` e `tcr_w` movem o objetivo; `xr_w`, `x_mlg`,
+  `z_lg` e `y_mlg` têm curva de W0 **plana** — não são "otimizadas", são
+  *posicionadas pelas restrições*. Com 6 restrições ativas, qualquer passo
+  numa DV isolada sai do conjunto viável, e a figura mostra **qual restrição
+  barra cada direção**: `SM_aft` barra AR/enflechamento baixos, `SM_fwd`
+  barra os altos, `tank_excess` barra raiz fina, `alpha_tipback` barra asa
+  grande e trem adiantado, `ground_clearance` barra trem curto,
+  `mlg_track` barra trem largo.
 
 ### 1. Definição do problema e escolha das DVs
 
@@ -107,7 +128,7 @@ de 13,9 m porque a estação mais externa da asa enflechada tem bordo de fuga
 mais recuado, aliviando `mlg_fit` e permitindo o trem mais atrás
 (tipback/tailstrike ativos amarram `x_mlg` e `z_lg`).
 
-## Seção 4 — Multiobjetivo (`lab2_opt_equipe_moga.py`)
+## Tópico 3 — Multiobjetivo W0 × Wf (`lab2_opt_equipe_moga.py`)
 
 min {W0, Wf} com as mesmas 8 DVs e 16 restrições, NSGA-II (pymoo),
 **G ≤ 0 no pymoo** (sinal oposto ao scipy). Avaliações que divergem o
@@ -143,10 +164,11 @@ não na forma.
 
 Os extremos da frente devem coincidir com os ótimos mono-objetivo do
 mesmo problema: min W0 (SLSQP) = 290.117,1 kgf e min Wf (SLSQP) =
-109.117,9 kgf (W0 = 291.961,0 kgf). Uma primeira rodada **sem sementes**
-(pop 60, 120 gerações, seed 1) estagnou com o extremo min-W0 em
-293.379,9 kgf — **+1,12 % acima da âncora**, com a frente inteira dominada
-pelos dois pontos do SLSQP: evidência objetiva de não-convergência. A
+109.117,9 kgf (W0 = 291.961,0 kgf). Uma rodada **ingênua e reprodutível**
+(`lab2_moga_convergencia.py`: população inicial aleatória, sem sementes,
+pop 60 × 120 gerações) estagna com apenas 2 pontos, **+2,1 % acima da
+âncora** e inteiramente dominada pelos ótimos do SLSQP — evidência objetiva
+de não-convergência, visível em `equipe_moga_convergencia.png`. A
 rodada final (pop 80, 200 gerações, semeada) fecha os extremos em
 **+0,22 %** (min W0 = 290.758,2 kgf) e **+0,25 %** (min Wf =
 109.385,4 kgf) das âncoras — o resíduo é esperado do NSGA-II em ótimos

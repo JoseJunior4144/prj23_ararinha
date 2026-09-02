@@ -7,9 +7,11 @@ Laboratório de otimização aplicada ao projeto conceitual de aeronaves.
 
 ```
 pip install -r requirements.txt
-python lab2_opt_fokker100.py       # Secao 2 do roteiro  (~1,5 min, inclui contorno do espaco de projeto)
-python lab2_opt_equipe_geom.py     # Secao 3 do roteiro  (~5 s)
-python lab2_opt_equipe_moga.py     # Secao 4 do roteiro  (~1-2 min, NSGA-II com 16.000 analises)
+python lab2_opt_fokker100.py       # Topico 1: mono-obj default   (~1,5 min, inclui contorno do espaco de projeto)
+python lab2_opt_equipe_geom.py     # Topico 2: mono-obj equipe    (~5 s)
+python lab2_doe_equipe.py          # Topico 2: DOE + etapas       (~10 s)
+python lab2_opt_equipe_moga.py     # Topico 3: multiobj NSGA-II   (~1-2 min, 16.000 analises)
+python lab2_moga_convergencia.py   # Topico 3: evidencia de convergencia (~40 s)
 ```
 
 Cada script imprime os resultados no terminal e salva as figuras `*.png`
@@ -27,6 +29,10 @@ então re-rodar reproduz os números do relatório.
 - `lab2_opt_equipe_moga.py` — **Seção 4**: min {W0, Wf} com NSGA-II (pymoo),
   pop. 80 × 200 gerações, população semeada com os ótimos SLSQP (âncoras de
   convergência). Salva a frente em `Resultados/equipe_moga_frente.csv`.
+- `lab2_doe_equipe.py` — storytelling do Tópico 2: cortes 1-a-1 no ótimo
+  (qual restrição barra cada direção) e comparação de W0 pelas etapas.
+- `lab2_moga_convergencia.py` — Tópico 3: rodada ingênua do NSGA-II
+  comparada à frente final e às âncoras SLSQP (evidência de convergência).
 - `lab2_opt_equipe.py` — versão intermediária da Seção 3 (6 DVs, sem as
   restrições de encaixe do trem), mantida como registro da progressão.
 
@@ -40,8 +46,10 @@ então re-rodar reproduz os números do relatório.
 - `analyze.py` — demo do designTool (fica na raiz porque importa o pacote)
 
 ### Resultados
-- `Resultados/` — figuras geradas + `lab02_respostas_resumo.md` com as respostas
-  do roteiro. O relatório final é mantido no Overleaf da equipe.
+- `Resultados/` — figuras e dados organizados pelos 3 tópicos do roteiro
+  (`1_monoobj_fokker100/`, `2_monoobj_equipe/`, `3_multiobj/`) +
+  `lab02_respostas_resumo.md` com as respostas. O relatório final é mantido
+  no Overleaf da equipe.
 
 ## Notas de modelagem
 

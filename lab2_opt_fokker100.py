@@ -16,8 +16,9 @@ neval = [0]
 
 b_w_max = 30.0
 
-# figuras vao para Resultados/ para manter a raiz organizada
-os.makedirs('Resultados', exist_ok=True)
+# figuras organizadas por topico do roteiro
+RES = 'Resultados/1_monoobj_fokker100'
+os.makedirs(RES, exist_ok=True)
 
 cache = {'x': None, 'out': None}
 
@@ -178,7 +179,7 @@ for ax in axs:
     style_axes(ax)
 
 plt.tight_layout()
-fig.savefig('Resultados/fokker100_historico.png', dpi=150)
+fig.savefig(RES + '/fokker100_historico.png', dpi=150)
 
 PLOT_CONTOUR = True
 
@@ -233,6 +234,6 @@ if PLOT_CONTOUR:
     ax.set_ylabel(r'$S_w$ [m$^2$]', fontsize=15)
     ax.legend(loc='lower left', framealpha=0.9)
     plt.tight_layout()
-    fig.savefig('Resultados/fokker100_espaco_projeto.png', dpi=150)
+    fig.savefig(RES + '/fokker100_espaco_projeto.png', dpi=150)
 
 plt.show()

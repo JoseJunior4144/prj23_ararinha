@@ -235,7 +235,7 @@ axs[2].set_ylim(-0.2, 3.0)
 axs[2].legend(fontsize=7, ncol=3, loc='upper right')
 
 plt.tight_layout()
-fig.savefig('equipe_etapa2_historico.png', dpi=150)
+fig.savefig('Resultados/2_monoobj_equipe/equipe_etapa2_historico.png', dpi=150)
 
 airplane_opt = standard_airplane('my_airplane')
 for name, value in zip(dv_names, Xopt):
@@ -298,6 +298,6 @@ for ax in axs:
     ax.grid(alpha=0.3)
 
 plt.tight_layout()
-fig.savefig('equipe_etapa2_planformas.png', dpi=150)
+fig.savefig('Resultados/2_monoobj_equipe/equipe_etapa2_planformas.png', dpi=150)
 
 plt.show()
