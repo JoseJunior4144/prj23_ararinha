@@ -89,6 +89,8 @@ def run_analysis(X):
     te_mlg = i['xr_w'] + (g['xt_w'] - i['xr_w'])*eta + c_mlg
 
     out = {'W0'               : tm['W0']/gravity,
+           'Wf'               : tm['W_fuel']/gravity,
+           'W_empty'          : tm['W_empty']/gravity,
            'deltaS_wlan'      : tm['deltaS_wlan']/i['S_w'],
            'SM_fwd'           : b['SM_fwd'],
            'SM_aft'           : b['SM_aft'],
@@ -269,5 +271,74 @@ fig.savefig(RES + '/equipe_etapas_w0.png', dpi=150)
 
 print('Etapas: baseline %.1f t | 6 DVs %.1f t | final %.1f t'
       % (out_base['W0']/1000, out_6dv['W0']/1000, out_opt['W0']/1000))
+
+### FIGURA 3: comparacao v1 (baseline PRJ-22) x v2 (otimizada)
+# variacao percentual das DVs e dos resultados; dupla divergente azul/vermelho
+# (aumento = vermelho, reducao = azul), sem juizo de valor -- e' so o sinal.
+# z_lg vira comprimento do trem (-z_lg) para o sinal ter sentido fisico.
+
+COR_MAIS = '#e34948'
+COR_MENOS = '#2a78d6'
+
+def pct(v1, v2):
+    return 100.0*(v2 - v1)/abs(v1)
+
+g_base = run_analysis(Xbase)
+g_opt2 = out_opt   # ja calculado acima
+
+linhas_dv = [
+    ('$y_{mlg}$',        '%.2f m',  5.50,   6.95),
+    ('$AR_w$',           '%.2f',    8.00,   9.80),
+    ('$(t/c)_{r,w}$',    '%.3f',    0.180,  0.2093),
+    ('$\\Lambda_w$',     '%.3f rad', 0.580, 0.6108),
+    ('trem (comprim. $-z_{lg}$)', '%.2f m', 5.75, 6.025),
+    ('$x_{r,w}$',        '%.2f m', 17.00,  16.011),
+    ('$x_{mlg}$',        '%.2f m', 31.00,  29.263),
+    ('$S_w$',            '%.1f m$^2$', 390.0, 353.67),
+]
+linhas_res = [
+    ('$b_w$',      '%.1f m', g_base['b_w'],          g_opt2['b_w']),
+    ('$W_0$',      '%.1f t', g_base['W0']/1000,      g_opt2['W0']/1000),
+    ('$W_{vazio}$','%.1f t', g_base['W_empty']/1000, g_opt2['W_empty']/1000),
+    ('$W_f$',      '%.1f t', g_base['Wf']/1000,      g_opt2['Wf']/1000),
+]
+
+fig, (axd, axr) = plt.subplots(2, 1, figsize=(9, 7.2), sharex=True,
+                               gridspec_kw={'height_ratios': [2, 1.05]})
+
+for ax, linhas, titulo in ((axd, linhas_dv, 'Variáveis de projeto'),
+                           (axr, linhas_res, 'Resultados')):
+    nomes = [l[0] for l in linhas]
+    deltas = [pct(l[2], l[3]) for l in linhas]
+    ypos = np.arange(len(linhas))[::-1]
+    cores = [COR_MAIS if d > 0 else COR_MENOS for d in deltas]
+    ax.barh(ypos, deltas, height=0.55, color=cores)
+    for yi, d, (nome, fmt, v1, v2) in zip(ypos, deltas, linhas):
+        lado = 1 if d > 0 else -1
+        ax.annotate('%+.1f%%' % d, (d, yi), xytext=(6*lado, 0),
+                    textcoords='offset points', va='center',
+                    ha='left' if d > 0 else 'right',
+                    fontsize=9, color=INK, fontweight='bold')
+        ax.annotate(('v1 ' + fmt + ' → v2 ' + fmt) % (v1, v2), (0, yi),
+                    xytext=(-6*lado, 0), textcoords='offset points',
+                    va='center', ha='right' if d > 0 else 'left',
+                    fontsize=8, color=INK2)
+    ax.axvline(0, color=INK2, linewidth=0.9)
+    ax.set_yticks(ypos)
+    ax.set_yticklabels(nomes, fontsize=10)
+    ax.set_title(titulo, fontsize=11, color=INK, loc='left')
+    ax.set_xlim(-32, 32)
+    style_axes(ax)
+
+axr.set_xlabel('variação v1 → v2 [%]', fontsize=12)
+fig.suptitle('Aeronave da equipe: v1 (PRJ-22) → v2 (otimizada, $-5{,}42\\%$ de MTOW)',
+             fontsize=13, color=INK)
+
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+fig.savefig(RES + '/equipe_v1v2_delta.png', dpi=150)
+
+print('v1 -> v2: W0 %+.2f%% | Wf %+.2f%% | W_empty %+.2f%% | b_w %+.2f%%'
+      % (pct(g_base['W0'], g_opt2['W0']), pct(g_base['Wf'], g_opt2['Wf']),
+         pct(g_base['W_empty'], g_opt2['W_empty']), pct(g_base['b_w'], g_opt2['b_w'])))
 
 plt.show()

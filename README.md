@@ -30,7 +30,8 @@ então re-rodar reproduz os números do relatório.
   pop. 80 × 200 gerações, população semeada com os ótimos SLSQP (âncoras de
   convergência). Salva a frente em `Resultados/equipe_moga_frente.csv`.
 - `lab2_doe_equipe.py` — storytelling do Tópico 2: cortes 1-a-1 no ótimo
-  (qual restrição barra cada direção) e comparação de W0 pelas etapas.
+  (qual restrição barra cada direção), comparação de W0 pelas etapas e
+  variações v1 → v2 (DVs e resultados).
 - `lab2_moga_convergencia.py` — Tópico 3: rodada ingênua do NSGA-II
   comparada à frente final e às âncoras SLSQP (evidência de convergência).
 - `lab2_opt_equipe.py` — versão intermediária da Seção 3 (6 DVs, sem as

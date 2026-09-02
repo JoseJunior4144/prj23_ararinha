@@ -25,7 +25,14 @@ Problema: min MTOW, DVs `AR_w` ∈ [7, 12] e `S_w` ∈ [80, 120] m², restriçã
 
 ## Tópico 2 — Mono-objetivo: aeronave da equipe (`lab2_opt_equipe_geom.py`)
 
-### Storytelling: da baseline ao ótimo (`equipe_etapas_w0.png`, `equipe_doe_sensibilidade.png`)
+### Storytelling: da baseline ao ótimo (`equipe_etapas_w0.png`, `equipe_doe_sensibilidade.png`, `equipe_v1v2_delta.png`)
+
+- **v1 → v2** (`equipe_v1v2_delta.png`): o resumo executivo da otimização —
+  asa mais esbelta (AR +22,5%), menor (S_w −9,3%), mais enflechada (+5,3%) e
+  de raiz mais espessa (+16,3%), com trem mais largo (+26,4%) e mais longo
+  (+4,8%), compra **−5,4% de MTOW, −3,3% de peso vazio e −9,5% de
+  combustível**, pagando +5,4% de envergadura (58,9 m, ainda código E).
+  A v2 está registrada em `Histórico de Versões/standard_airplane v2.py`.
 
 - **Etapas** (`lab2_doe_equipe.py`): baseline PRJ-22 (306,7 t — já inviável:
   trem principal atrás do bordo de fuga, `mlg_fit` = 1,013) → otimização com
