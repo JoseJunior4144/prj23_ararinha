@@ -12,6 +12,7 @@ python lab2_opt_equipe_geom.py     # Topico 2: mono-obj equipe    (~5 s)
 python lab2_doe_equipe.py          # Topico 2: DOE + etapas       (~10 s)
 python lab2_opt_equipe_moga.py     # Topico 3: multiobj NSGA-II   (~1-2 min, 16.000 analises)
 python lab2_moga_convergencia.py   # Topico 3: evidencia de convergencia (~40 s)
+python lab2_escolha_aeronave.py    # Topico 3: figura de escolha da aeronave (~5 s)
 ```
 
 Cada script imprime os resultados no terminal e salva as figuras `*.png`

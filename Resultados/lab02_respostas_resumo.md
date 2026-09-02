@@ -167,6 +167,17 @@ mas pesa mais. Em planta as três são quase idênticas
 (`equipe_moga_planformas.png`) — o trade-off está em área e espessura,
 não na forma.
 
+### Qual aeronave escolher, e com que critério (`equipe_escolha_aeronave.png`)
+
+O critério é a **taxa marginal de troca** ao longo da frente: do extremo de
+min W0 até o joelho, cada kg de MTOW aceito compra **≈1 kg de combustível
+por missão** (1,03:1) — troca vantajosa, porque o combustível se paga a
+cada voo enquanto o custo de MTOW é majoritariamente fixo. Depois do
+joelho a taxa piora para **≈2,3:1**. Por isso a equipe escolhe **B
+(joelho)**: W0 = 291.291,1 kgf, Wf = 109.891,3 kgf — +0,4 % de MTOW em
+relação ao ótimo mono-objetivo (v2), comprando −1,0 % de combustível. A
+figura mostra o processo completo: v1 → v2 (Tópico 2) → frente → B.
+
 ### Verificação de convergência com a Seção 3 (pergunta 3)
 
 Os extremos da frente devem coincidir com os ótimos mono-objetivo do
