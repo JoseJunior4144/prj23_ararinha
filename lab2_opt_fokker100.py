@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
@@ -13,6 +15,9 @@ g1list = []
 neval = [0]
 
 b_w_max = 30.0
+
+# figuras vao para Resultados/ para manter a raiz organizada
+os.makedirs('Resultados', exist_ok=True)
 
 cache = {'x': None, 'out': None}
 
@@ -173,7 +178,7 @@ for ax in axs:
     style_axes(ax)
 
 plt.tight_layout()
-fig.savefig('fokker100_historico.png', dpi=150)
+fig.savefig('Resultados/fokker100_historico.png', dpi=150)
 
 PLOT_CONTOUR = True
 
@@ -228,6 +233,6 @@ if PLOT_CONTOUR:
     ax.set_ylabel(r'$S_w$ [m$^2$]', fontsize=15)
     ax.legend(loc='lower left', framealpha=0.9)
     plt.tight_layout()
-    fig.savefig('fokker100_espaco_projeto.png', dpi=150)
+    fig.savefig('Resultados/fokker100_espaco_projeto.png', dpi=150)
 
 plt.show()

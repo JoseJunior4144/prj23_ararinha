@@ -7,6 +7,7 @@ A convergencia da frente de Pareto e verificada comparando o extremo de
 minimo W0 com o otimo do SLSQP da Secao 3.
 '''
 
+import os
 import time
 import warnings
 
@@ -26,6 +27,9 @@ rad2deg = 180/np.pi
 # fixo do W0 diverge (overflow/NaN); os avisos sao esperados e inofensivos
 np.seterr(all='ignore')
 warnings.filterwarnings('ignore')
+
+# figuras e dados vao para Resultados/ para manter a raiz organizada
+os.makedirs('Resultados', exist_ok=True)
 
 # mesmas DVs e limites da otimizacao mono-objetivo
 DV = [('AR_w',      8.0,   7.0,  12.0),
@@ -261,7 +265,7 @@ def style_axes(ax):
     ax.tick_params(colors=INK2, labelsize=9)
 
 # frente salva em CSV para replotar sem precisar re-rodar o NSGA-II
-np.savetxt('equipe_moga_frente.csv',
+np.savetxt('Resultados/equipe_moga_frente.csv',
            np.column_stack([W0_front, Wf_front, X*Xref]),
            header='W0_kgf Wf_kgf ' + ' '.join(dv_names), fmt='%.6g')
 
@@ -322,7 +326,7 @@ axi.tick_params(labelsize=7)
 style_axes(axi)
 
 plt.tight_layout()
-fig.savefig('equipe_moga_pareto.png', dpi=150)
+fig.savefig('Resultados/equipe_moga_pareto.png', dpi=150)
 
 ### PLANFORMAS DAS AERONAVES SELECIONADAS
 
@@ -389,6 +393,6 @@ for axb, vals, titulo, fmt in ((axb1, Svals, '$S_w$ [m$^2$]', '%.0f'),
     style_axes(axb)
 
 plt.tight_layout()
-fig.savefig('equipe_moga_planformas.png', dpi=150)
+fig.savefig('Resultados/equipe_moga_planformas.png', dpi=150)
 
 plt.show()

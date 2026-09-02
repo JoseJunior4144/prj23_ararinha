@@ -13,7 +13,7 @@ python lab2_opt_equipe_moga.py     # Secao 4 do roteiro  (~1-2 min, NSGA-II com 
 ```
 
 Cada script imprime os resultados no terminal e salva as figuras `*.png`
-no diretório atual. Os scripts são determinísticos (semente fixa no NSGA-II),
+em `Resultados/`. Os scripts são determinísticos (semente fixa no NSGA-II),
 então re-rodar reproduz os números do relatório.
 
 ## Estrutura
@@ -26,7 +26,7 @@ então re-rodar reproduz os números do relatório.
   Resultado: **W0 = 290.117 kgf (−5,42 %)**, 6 restrições ativas.
 - `lab2_opt_equipe_moga.py` — **Seção 4**: min {W0, Wf} com NSGA-II (pymoo),
   pop. 80 × 200 gerações, população semeada com os ótimos SLSQP (âncoras de
-  convergência). Salva a frente em `equipe_moga_frente.csv`.
+  convergência). Salva a frente em `Resultados/equipe_moga_frente.csv`.
 - `lab2_opt_equipe.py` — versão intermediária da Seção 3 (6 DVs, sem as
   restrições de encaixe do trem), mantida como registro da progressão.
 
@@ -35,8 +35,9 @@ então re-rodar reproduz os números do relatório.
   propulsão, desempenho, balanceamento, trem de pouso). Chamar via `analyze()`.
 
 ### Exemplos de aula
-- `01_uncon_opt_class.py`, `02_con_opt_class.py`, `03_multiobj_class.py`,
-  `plot_rosen.py`, `analyze.py`, `auxmod.py`
+- `exemplos_aula/` — `01_uncon_opt_class.py`, `02_con_opt_class.py`,
+  `03_multiobj_class.py`, `plot_rosen.py`, `auxmod.py`
+- `analyze.py` — demo do designTool (fica na raiz porque importa o pacote)
 
 ### Resultados
 - `Resultados/` — figuras geradas + `lab02_respostas_resumo.md` com as respostas

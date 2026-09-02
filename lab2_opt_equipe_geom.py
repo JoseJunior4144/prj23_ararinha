@@ -1,3 +1,4 @@
+import os
 import time
 import pprint
 
@@ -11,6 +12,9 @@ from designTool.plots import plot_geometry
 from designTool.constants import gravity
 
 rad2deg = 180/np.pi
+
+# figuras vao para Resultados/ para manter a raiz do repositorio organizada
+os.makedirs('Resultados', exist_ok=True)
 
 DV = [('AR_w',      8.0,   7.0,  12.0),
       ('xr_w',     17.0,  14.0,  20.0),
@@ -298,7 +302,7 @@ for ax in axs:
     style_axes(ax)
 
 plt.tight_layout()
-fig.savefig('equipe_geom_historico.png', dpi=150)
+fig.savefig('Resultados/equipe_geom_historico.png', dpi=150)
 
 def planform(ax, ap, color, label):
 
@@ -353,7 +357,7 @@ for ax in axs:
     style_axes(ax)
 
 plt.tight_layout()
-fig.savefig('equipe_geom_planformas.png', dpi=150)
+fig.savefig('Resultados/equipe_geom_planformas.png', dpi=150)
 
 print('')
 print('='*70)
@@ -361,6 +365,6 @@ print('DICIONARIO DA AERONAVE OTIMIZADA')
 print('='*70)
 print('inputs = ' + pprint.pformat(airplane_opt['inputs'], sort_dicts=False, width=100))
 
-plot_geometry(airplane_opt, figname='equipe_geom_3dview.png')
+plot_geometry(airplane_opt, figname='Resultados/equipe_geom_3dview.png')
 
 plt.show()
